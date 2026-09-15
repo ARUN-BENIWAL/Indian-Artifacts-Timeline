@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Indian Art Through Time — Interactive Timeline (TimelineJS)</title>
+
+  <!-- Google Fonts: Cormorant Garamond & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Knight Lab TimelineJS3 Stylesheet -->
+  <link title="timeline-styles" rel="stylesheet" href="https://cdn.knightlab.com/libs/timeline3/latest/css/timeline.css">
+
+  <style>
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #f8f6f2;
+      color: #2b2520;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      overflow: hidden;
+    }
+
+    /* Museum Header Navigation Bar */
+    header#museum-header {
+      width: 100%;
+      height: 52px;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(43, 37, 32, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      z-index: 1000;
+      position: relative;
+    }
+
+    .museum-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .museum-crest {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.5px solid #8c6020;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #8c6020;
+      background: rgba(140, 96, 32, 0.06);
+    }
+
+    .museum-title-block h1 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1a1815;
+      line-height: 1.1;
+    }
+
+    .museum-title-block p {
+      font-size: 9.5px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #8c6020;
+    }
+
+    /* Quick Jump Era Buttons */
+    nav#era-nav {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .era-pill {
+      background: #faf8f5;
+      border: 1px solid rgba(43, 37, 32, 0.14);
+      border-radius: 16px;
+      padding: 4px 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      color: #4a423b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .era-pill:hover {
+      background: #8c6020;
+      color: #ffffff;
+      border-color: #8c6020;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-switch-view {
+      font-size: 11px;
+      font-weight: 600;
+      color: #8c6020;
+      text-decoration: none;
+      padding: 4px 12px;
+      border: 1px solid rgba(140, 96, 32, 0.35);
+      border-radius: 4px;
+      transition: all 0.2s ease;
+      background: rgba(140, 96, 32, 0.04);
+    }
+
+    .btn-switch-view:hover {
+      background: #8c6020;
+      color: #ffffff;
+    }
+
+    /* Timeline Container */
+    #timeline-container {
+      width: 100%;
+      height: calc(100vh - 52px);
+      position: relative;
+    }
+
+    #timeline-embed {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ==========================================================================
+       TIMELINEJS CLEAN ALIGNMENT & OVERLAP FIXES
+       ========================================================================== */
+    .tl-timeline {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif !important;
+      background: #f8f6f2 !important;
+    }
+
+    /* Force clean slide container layout */
+    .tl-storyslider {
+      background: #f8f6f2 !important;
+    }
+
+    .tl-slide .tl-slide-content-container {
+      padding: 10px 40px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .tl-slide .tl-slide-content {
+      max-width: 1160px !important;
+      width: 100% !important;
+      margin: 0 auto !important;
+    }
+
+    /* Media column */
+    .tl-media-content img {
+      box-shadow: 0 12px 36px rgba(43, 37, 32, 0.12) !important;
+      border-radius: 4px !important;
+      max-height: 48vh !important;
+      max-width: 100% !important;
+      object-fit: contain !important;
+      background: #efebe4 !important;
+    }
+
+    .tl-caption {
+      font-family: 'Cormorant Garamond', serif !important;
+      font-style: italic !important;
+      font-size: 13px !important;
+      color: #5a5047 !important;
+      margin-top: 6px !important;
+      text-align: center !important;
+    }
+
+    .tl-credit {
+      font-size: 9.5px !important;
+      letter-spacing: 0.12em !important;
+      text-transform: uppercase !important;
+      color: #8c6020 !important;
+      font-weight: 600 !important;
+      text-align: center !important;
+    }
+
+    /* Text column */
+    .tl-text {
+      max-height: 52vh !important;
+      overflow-y: auto !important;
+      padding-right: 14px !important;
+    }
+
+    .tl-text::-webkit-scrollbar {
+      width: 5px;
+    }
+    .tl-text::-webkit-scrollbar-thumb {
+      background: rgba(43, 37, 32, 0.18);
+      border-radius: 4px;
+    }
+
+    .tl-headline {
+      font-family: 'Cormorant Garamond', Georgia, serif !important;
+      font-weight: 600 !important;
+      font-size: clamp(22px, 2.3vw, 34px) !important;
+      line-height: 1.2 !important;
+      text-transform: none !important; /* NOT ALL CAPS */
+      letter-spacing: -0.01em !important;
+      color: #1a1815 !important;
+      margin-bottom: 8px !important;
+    }
+
+    .tl-headline-date {
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      letter-spacing: 0.16em !important;
+      text-transform: uppercase !important;
+      color: #8c6020 !important;
+      margin-bottom: 4px !important;
+    }
+
+    /* Artifact Metadata Bar */
+    .artifact-meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 12px;
+      margin: 10px 0 12px;
+      padding: 8px 12px;
+      background: rgba(140, 96, 32, 0.06);
+      border-left: 3px solid #8c6020;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .meta-tag {
+      font-size: 11px;
+      color: #4a423b;
+      line-height: 1.4;
+    }
+
+    .meta-tag strong {
+      color: #1a1815;
+      font-weight: 600;
+    }
+
+    .artifact-context {
+      font-size: 13px;
+      line-height: 1.7;
+      color: #3b342e;
+      margin-bottom: 10px;
+    }
+
+    .artifact-significance-box {
+      background: #ffffff;
+      border: 1px solid rgba(43, 37, 32, 0.1);
+      border-radius: 4px;
+      padding: 10px 14px;
+      margin-top: 10px;
+      box-shadow: 0 2px 8px rgba(43, 37, 32, 0.03);
+    }
+
+    .artifact-significance-box h4 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #8c6020;
+      margin-bottom: 4px;
+    }
+
+    .artifact-significance-box p {
+      font-size: 12px;
+      line-height: 1.65;
+      color: #4a423b;
+    }
+
+    /* Timenav at the bottom - Compact, Single Lane, No Overlapping Rows */
+    .tl-timenav {
+      background: #ffffff !important;
+      border-top: 1px solid rgba(43, 37, 32, 0.12) !important;
+    }
+
+    .tl-timeaxis-background {
+      background: #faf8f5 !important;
+    }
+
+    .tl-timeaxis-tick-text {
+      font-size: 9.5px !important;
+      color: #7a7065 !important;
+    }
+
+    /* Hide default tl-era overlay and timeaxis-era text to eliminate collisions with date ticks */
+    .tl-era,
+    .tl-timeaxis-era,
+    .tl-timeaxis-era-text {
+      display: none !important;
+    }
+
+    /* Marker styling - ample width so titles don't truncate awkwardly */
+    .tl-timemarker .tl-timemarker-content-container {
+      min-width: 120px !important;
+      border-radius: 4px !important;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08) !important;
+      border: 1px solid rgba(43, 37, 32, 0.15) !important;
+      background: #ffffff !important;
+      padding: 6px 10px !important;
+    }
+
+    .tl-timemarker .tl-timemarker-text h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      line-height: 1.25 !important;
+      color: #2b2520 !important;
+      letter-spacing: 0 !important;
+      white-space: normal !important;
+    }
+
+    .tl-timemarker.tl-timemarker-active .tl-timemarker-content-container {
+      background: #2b2520 !important;
+      border-color: #2b2520 !important;
+    }
+
+    .tl-timemarker.tl-timemarker-active .tl-timemarker-text h2 {
+      color: #ffffff !important;
+    }
+
+    @media (max-width: 900px) {
+      nav#era-nav { display: none; }
+      header#museum-header { padding: 0 16px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Museum Top Navigation Header -->
+  <header id="museum-header">
+    <div class="museum-brand">
+      <div class="museum-crest">IA</div>
+      <div class="museum-title-block">
+        <h1>Indian Art Through Time</h1>
+        <p>Interactive Digital Artifact Timeline &nbsp;·&nbsp; TimelineJS</p>
+      </div>
+    </div>
+
+    <!-- Quick-Jump Era Navigation Buttons -->
+    <nav id="era-nav" aria-label="Era Jump Navigation">
+      <button class="era-pill" onclick="jumpToSlide('indus-dancing-girl')">3300 BCE · Indus Valley</button>
+      <button class="era-pill" onclick="jumpToSlide('mauryan-lion-capital')">322 BCE · Mauryan</button>
+      <button class="era-pill" onclick="jumpToSlide('gupta-sarnath-buddha')">320 CE · Gupta</button>
+      <button class="era-pill" onclick="jumpToSlide('chola-parvati')">850 CE · Chola</button>
+      <button class="era-pill" onclick="jumpToSlide('mughal-miniature')">1526 CE · Mughal</button>
+      <button class="era-pill" onclick="jumpToSlide('modern-ravi-varma')">1900 CE · Modern</button>
+    </nav>
+
+    <div class="header-actions">
+      <a href="index-custom.html" class="btn-switch-view" title="View the original custom exhibit">✦ Custom Museum View &rarr;</a>
+    </div>
+  </header>
+
+  <!-- TimelineJS Canvas -->
+  <main id="timeline-container">
+    <div id="timeline-embed"></div>
+  </main>
+
+  <!-- Knight Lab TimelineJS3 Script -->
+  <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
+
+  <script>
+    /* Complete Curatorial Timeline Data (WITHOUT group property to prevent stacked row clutter) */
+    const timelineData = {
+      title: {
+        media: {
+          url: "images/dancing-girl.jpg",
+          caption: "Dancing Girl of Mohenjo-daro (c. 2500 BCE) · National Museum, New Delhi",
+          credit: "National Museum & Archaeological Survey of India"
+        },
+        text: {
+          headline: "Indian Art Through Time<br><em>5,000 Years of Artistic Mastery</em>",
+          text: `
+            <p class="artifact-context" style="font-size: 14px; line-height: 1.75;">
+              Welcome to the interactive digital timeline of Indian art history. Spanning five millennia from the prehistoric bronze casting of the Indus Valley to the post-colonial avant-garde, this curated exhibit provides virtual replicas and in-depth curatorial analysis of the subcontinent's most seminal sculptures, architectural marvels, and paintings.
+            </p>
+            <div class="artifact-meta-bar" style="margin-top: 14px;">
+              <span class="meta-tag"><strong>Scope:</strong> 3300 BCE – Present</span>
+              <span class="meta-tag"><strong>Eras Covered:</strong> 6 Major Periods</span>
+              <span class="meta-tag"><strong>Artifacts:</strong> 12 Masterpieces</span>
+              <span class="meta-tag"><strong>Engine:</strong> TimelineJS (Knight Lab)</span>
+            </div>
+            <p style="font-size: 12px; color: #8c6020; font-weight: 500; margin-top: 12px;">
+              &larr; Use the arrow buttons, scroll horizontally, or click any era pill in the top bar to explore.
+            </p>
+          `
+        }
+      },
+      events: [
+        /* 1. INDUS VALLEY CIVILIZATION (3300 – 1300 BCE) */
+        {
+          start_date: { year: -2500 },
+          unique_id: "indus-dancing-girl",
+          media: {
+            url: "images/dancing-girl.jpg",
+            caption: "The Dancing Girl of Mohenjo-daro · Height: 10.5 cm",
+            credit: "National Museum, New Delhi"
+          },
+          text: {
+            headline: "Dancing Girl of Mohenjo-daro",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> c. 2500 BCE (Indus Valley)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Mohenjo-daro, Sindh</span>
+                <span class="meta-tag"><strong>Material:</strong> Lost-wax cast bronze</span>
+              </div>
+              <p class="artifact-context">
+                Unearthed by archaeologist D.R. Sahni in 1926 at Mohenjo-daro, this diminutive 10.5-centimetre statuette portrays a young woman standing in an attitude of uninhibited confidence. Her right hand rests upon her hip, while her left arm is adorned from wrist to shoulder with 24 carved bangles. Her dynamic contrapposto posture and elaborate coiled bun demonstrate an acute observation of human posture.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Archaeological &amp; Cultural Significance</h4>
+                <p>
+                  The Dancing Girl proved that 4,500 years ago, Indus artisans had perfected lost-wax bronze metallurgy millennia before classical Mediterranean antiquity, capturing an individual human personality with naturalistic delight.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: -2000 },
+          unique_id: "indus-priest-king",
+          media: {
+            url: "images/priest-king.jpg",
+            caption: "The Priest-King Bust · Height: 17.5 cm",
+            credit: "National Museum of Pakistan, Karachi"
+          },
+          text: {
+            headline: "The Priest-King of Mohenjo-daro",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> c. 2000 BCE (Indus Valley)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Mohenjo-daro, Sindh</span>
+                <span class="meta-tag"><strong>Material:</strong> Low-fired steatite with red pigment</span>
+              </div>
+              <p class="artifact-context">
+                Found in a brick-lined room at Mohenjo-daro in 1927, this 17.5-centimetre bust portrays a bearded male dignitary wearing an ornate fillet headband with a circular forehead medallion. Draped over his left shoulder is an elaborate cloak carved with a distinctive trefoil motif that originally contained red cinnabar inlay.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Archaeological &amp; Cultural Significance</h4>
+                <p>
+                  The Priest-King represents the quintessential emblem of contemplative authority in the ancient world. The trefoil pattern directly parallels contemporary Mesopotamian ceremonial robes, testifying to extensive maritime trade networks across the Persian Gulf.
+                </p>
+              </div>
+            `
+          }
+        },
+
+        /* 2. MAURYAN EMPIRE (322 – 185 BCE) */
+        {
+          start_date: { year: -250 },
+          unique_id: "mauryan-lion-capital",
+          media: {
+            url: "images/lion-capital.jpg",
+            caption: "Lion Capital of Ashoka at Sarnath · Height: 2.15 m",
+            credit: "Sarnath Archaeological Museum, Uttar Pradesh"
+          },
+          text: {
+            headline: "Lion Capital of Ashoka",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> c. 250 BCE (Mauryan Empire)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Sarnath Deer Park, Uttar Pradesh</span>
+                <span class="meta-tag"><strong>Material:</strong> Monolithic polished Chunar sandstone</span>
+              </div>
+              <p class="artifact-context">
+                Erected by Emperor Ashoka at the site of the Buddha's first sermon, this 2.15-metre monumental capital originally crowned a massive monolithic pillar. Four Asiatic lions sit back-to-back atop a circular abacus carved with four animals separated by four 24-spoke Dharma wheels.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>National &amp; Political Significance</h4>
+                <p>
+                  The glassy mirror-polish achieved on Chunar sandstone remains a technological marvel. In 1947, independent India adopted this capital as its Supreme National Emblem, and placed the 24-spoke Ashoka Chakra into the center of the Indian national flag.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: -200 },
+          unique_id: "mauryan-yakshi",
+          media: {
+            url: "images/didarganj-yakshi.jpg",
+            caption: "Didarganj Yakshi (Chauri Bearer) · Life-sized (1.63 m)",
+            credit: "Bihar Museum, Patna"
+          },
+          text: {
+            headline: "Didarganj Yakshi (Chauri Bearer)",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> c. 3rd – 2nd Century BCE (Mauryan)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Didarganj, Patna, Bihar</span>
+                <span class="meta-tag"><strong>Material:</strong> Polished Chunar sandstone</span>
+              </div>
+              <p class="artifact-context">
+                Unearthed on the banks of the Ganges in 1917, this life-sized female statue (1.63 metres) portrays a celestial attendant (yakshi) holding a fly-whisk (chauri). Carved from a single block of sandstone, she displays the voluptuous ideals of classical Indian female beauty with layered pearl girdles and mirror-smooth polish.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Aesthetic &amp; Historical Significance</h4>
+                <p>
+                  Representing the highest watermark of early Indian freestanding stone sculpture, the Didarganj Yakshi established the archetype of the feminine divine principle that would grace Indian temple gateways for the next two millennia.
+                </p>
+              </div>
+            `
+          }
+        },
+
+        /* 3. GUPTA PERIOD (320 – 550 CE) */
+        {
+          start_date: { year: 475 },
+          unique_id: "gupta-sarnath-buddha",
+          media: {
+            url: "images/sarnath-buddha.jpg",
+            caption: "The Preaching Buddha of Sarnath · 5th Century CE",
+            credit: "Sarnath Archaeological Museum"
+          },
+          text: {
+            headline: "The Preaching Buddha of Sarnath",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 5th Century CE (Gupta Classical Age)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Sarnath, Uttar Pradesh</span>
+                <span class="meta-tag"><strong>Material:</strong> Chunar buff sandstone</span>
+              </div>
+              <p class="artifact-context">
+                Created in the imperial ateliers of the Gupta Empire, this sculpture portrays the Buddha seated in padmasana turning the Wheel of Law (dharmachakra-pravartana mudra). His sheer monastic robes are rendered with ethereal transparency, and behind him radiates an ornate halo overflowing with carved lotus petals.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Spiritual &amp; Global Influence</h4>
+                <p>
+                  This work is universally recognized as the classical summit of Buddhist figurative art. Gupta sculptors synthesized internal meditation with idealized geometry, establishing the canon that traveled along the Silk Road across East Asia.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: 500 },
+          unique_id: "gupta-ajanta",
+          media: {
+            url: "images/ajanta.jpg",
+            caption: "Padmapani Bodhisattva · Cave 1, Ajanta Caves",
+            credit: "Archaeological Survey of India / UNESCO World Heritage"
+          },
+          text: {
+            headline: "Padmapani Bodhisattva (Ajanta Murals)",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 5th – 6th Century CE (Gupta Age)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Cave 1, Ajanta Caves, Maharashtra</span>
+                <span class="meta-tag"><strong>Material:</strong> Natural mineral pigments on mud plaster</span>
+              </div>
+              <p class="artifact-context">
+                Painted on the rock-cut walls of Cave 1 at Ajanta, the Bodhisattva of Infinite Compassion (Avalokiteshvara Padmapani) stands in a graceful tribhanga pose, holding a blue lotus in his right hand. He wears a tiered crown of pearls and sapphires, looking downward with serene compassion.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Artistic &amp; Technical Mastery</h4>
+                <p>
+                  Ajanta represents the pinnacle of ancient Asian wall painting. Through delicate tonal gradation and psychological depth, these Buddhist murals achieved atmospheric foreshortening a thousand years before the European Renaissance.
+                </p>
+              </div>
+            `
+          }
+        },
+
+        /* 4. CHOLA DYNASTY (850 – 1279 CE) */
+        {
+          start_date: { year: 1000 },
+          unique_id: "chola-parvati",
+          media: {
+            url: "images/chola-bronze.jpg",
+            caption: "Standing Parvati · Panchaloha Lost-Wax Bronze",
+            credit: "Government Museum, Chennai"
+          },
+          text: {
+            headline: "Standing Parvati (Chola Bronze)",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 10th – 12th Century CE (Chola Dynasty)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Thanjavur region, Tamil Nadu</span>
+                <span class="meta-tag"><strong>Material:</strong> Panchaloha lost-wax cast bronze</span>
+              </div>
+              <p class="artifact-context">
+                Cast via the lost-wax technique in the fertile Kaveri delta, this imperial bronze portrays the goddess Parvati standing in an undulating three-bend posture (tribhanga). She is crowned with a conical karandamukuta, sacred cord, and delicately incised diaphanous dhotis.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Ritual &amp; Sculptural Purpose</h4>
+                <p>
+                  Chola bronzes were crafted as processional deities (utsava murtis), consecrated to be carried through temple streets during nocturnal festivals while bathed in sacred oils. Their anatomical fluidity and rhythmic tension remain unmatched in world metallurgy.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: 1050 },
+          unique_id: "chola-nataraja",
+          media: {
+            url: "images/nataraja.jpg",
+            caption: "Shiva Nataraja (Lord of the Cosmic Dance) · 11th Century CE",
+            credit: "Government Museum, Chennai & National Museum, New Delhi"
+          },
+          text: {
+            headline: "Shiva Nataraja (Lord of Dance)",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 11th Century CE (Peak Imperial Chola)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Tamil Nadu, South India</span>
+                <span class="meta-tag"><strong>Material:</strong> Panchaloha lost-wax cast bronze</span>
+              </div>
+              <p class="artifact-context">
+                The Chola Nataraja encapsulates the eternal cosmic cycles of creation, preservation, and dissolution. Dancing inside a circular arch of cosmic fire (prabhamandala), Shiva beats the damaru drum of creation in his upper right hand and holds the purifying flame of destruction in his upper left.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Philosophical &amp; Scientific Resonance</h4>
+                <p>
+                  Celebrated by Auguste Rodin and Carl Sagan, the Nataraja is revered as humanity's supreme union of philosophy and plastic art. In 2004, a 2-metre replica was permanently installed at CERN in Geneva as an eternal metaphor for the cosmic dance of subatomic particles.
+                </p>
+              </div>
+            `
+          }
+        },
+
+        /* 5. MUGHAL EMPIRE (1526 – 1857 CE) */
+        {
+          start_date: { year: 1600 },
+          unique_id: "mughal-miniature",
+          media: {
+            url: "images/mughal-miniature.jpg",
+            caption: "Mughal Court Album Folio (Murraqqa) · Opaque Watercolor & Gold",
+            credit: "Victoria and Albert Museum, London / National Museum, New Delhi"
+          },
+          text: {
+            headline: "The Royal Murraqqa Miniature",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> c. 1590 – 1620 CE (Mughal Empire)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Imperial Kitabkhana, Agra / Delhi / Lahore</span>
+                <span class="meta-tag"><strong>Material:</strong> Opaque watercolor and powdered gold on wasli paper</span>
+              </div>
+              <p class="artifact-context">
+                In the imperial painting studios (kitabkhanas) of Akbar and Jahangir, Persian master illuminators collaborated with indigenous painters. Artists utilized single-hair brushes fashioned from squirrel hair to execute micro-details of embroidered silk garments and atmospheric landscapes with European linear perspective.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Cultural &amp; Aesthetic Synthesis</h4>
+                <p>
+                  The Mughal school synthesized Persian decorative precision, indigenous Indian chromatic warmth, and European renaissance depth into a singular royal language that revolutionized manuscript illumination across South Asia.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: 1632 },
+          end_date: { year: 1653 },
+          unique_id: "mughal-taj-mahal",
+          media: {
+            url: "images/taj-mahal.jpg",
+            caption: "The Taj Mahal and Inlaid Pietra Dura Lapidary · Agra",
+            credit: "Archaeological Survey of India / UNESCO World Heritage"
+          },
+          text: {
+            headline: "The Taj Mahal &amp; Pietra Dura Lapidary",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 1632 – 1653 CE (Reign of Shah Jahan)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Agra, Uttar Pradesh</span>
+                <span class="meta-tag"><strong>Material:</strong> Translucent Makrana marble with semiprecious stone inlays</span>
+              </div>
+              <p class="artifact-context">
+                Commissioned by Emperor Shah Jahan as the mausoleum for Empress Mumtaz Mahal, the monument required the craftsmanship of 20,000 artisans over two decades. Surrounding marble panels are inlaid with lapis lazuli, jade, and carnelian cut to fractions of a millimetre into eternal floral arabesques (parchin kari).
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Architectural &amp; Mathematical Zenith</h4>
+                <p>
+                  The Taj Mahal is universally celebrated as the apex of Mughal architectural symmetry, acoustic engineering, and decorative lapidary. Every proportion conforms to sacred bilateral geometry, creating an earthly vision of paradise.
+                </p>
+              </div>
+            `
+          }
+        },
+
+        /* 6. MODERN INDIA (1900 CE – PRESENT) */
+        {
+          start_date: { year: 1895 },
+          unique_id: "modern-ravi-varma",
+          media: {
+            url: "images/ravi-varma.jpg",
+            caption: "Goddess Lakshmi / Shakuntala · Raja Ravi Varma",
+            credit: "National Gallery of Modern Art, New Delhi"
+          },
+          text: {
+            headline: "Raja Ravi Varma: The National Visualiser",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> Late 19th Century (1848 – 1906)</span>
+                <span class="meta-tag"><strong>Origin:</strong> Kilimanoor Palace, Kerala / Mumbai Press</span>
+                <span class="meta-tag"><strong>Material:</strong> Oil on canvas &amp; oleographic chromolithography</span>
+              </div>
+              <p class="artifact-context">
+                Born into Travancore royalty, Raja Ravi Varma mastered European academic oil techniques while steeping himself in the Mahabharata, Ramayana, and classical Sanskrit literature. He transformed traditional two-dimensional iconographic forms into flesh-and-blood theatrical portraits of Indian deities.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Democratization of Visual Culture</h4>
+                <p>
+                  By founding India's first commercial oleographic press in 1894, Ravi Varma printed hundreds of thousands of vibrant lithographs, placing sacred art into millions of ordinary homes and establishing the visual grammar that still underpins modern Indian popular culture.
+                </p>
+              </div>
+            `
+          }
+        },
+        {
+          start_date: { year: 1934 },
+          unique_id: "modern-amrita",
+          media: {
+            url: "images/amrita.jpg",
+            caption: "Three Girls / The Bride's Toilet · Amrita Sher-Gil",
+            credit: "National Gallery of Modern Art, New Delhi (National Art Treasure)"
+          },
+          text: {
+            headline: "Amrita Sher-Gil: The Mother of Modernism",
+            text: `
+              <div class="artifact-meta-bar">
+                <span class="meta-tag"><strong>Period:</strong> 1934 – 1941 CE</span>
+                <span class="meta-tag"><strong>Origin:</strong> Paris / Shimla / Saraya / Lahore</span>
+                <span class="meta-tag"><strong>Material:</strong> Oil on canvas</span>
+              </div>
+              <p class="artifact-context">
+                Trained at the École des Beaux-Arts in Paris, Hungarian-Indian painter Amrita Sher-Gil returned to India in 1934, declaring that her mission was to interpret the life of Indians through emotional color. Her monumental compositions feature rural subjects with quiet, melancholic eyes, rendered in saturated terracotta ochres.
+              </p>
+              <div class="artifact-significance-box">
+                <h4>Vanguard Revolution</h4>
+                <p>
+                  Sher-Gil broke decisively with both colonial British academicism and sentimental nationalist revivals. Her raw, empathetic modernist vision earned her works designation as protected National Art Treasures of India, cementing her position as the pioneer of modern Indian art.
+                </p>
+              </div>
+            `
+          }
+        }
+      ]
+    };
+
+    /* Initialize Knight Lab TimelineJS with Compact, Clean Navigation */
+    window.addEventListener('DOMContentLoaded', () => {
+      window.timeline = new TL.Timeline('timeline-embed', timelineData, {
+        scale_factor: 1,
+        initial_zoom: 2,
+        timenav_position: 'bottom',
+        timenav_height_percentage: 24,
+        timenav_height_min: 135,
+        marker_height_min: 34,
+        hash_bookmark: false,
+        font: 'default',
+        is_embed: false
+      });
+    });
+
+    /* Quick Jump to Timeline Slides */
+    function jumpToSlide(id) {
+      if (window.timeline) {
+        window.timeline.goToId(id);
+      }
+    }
+  </script>
+</body>
+</html>
